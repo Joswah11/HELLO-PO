@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HELLO PO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Lora:ital,wght@0,400;0,500;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f7f1e6;
+    --paper-soft:#efe6d6;
+    --ink:#2e2a26;
+    --ink-soft:#5b5349;
+    --maroon:#822da3;
+    --maroon-dark:#4a1758;
+    --rose:#c98d8d;
+    --gold:#b08d57;
+    --white:#fafafa;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Lora',serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:radial-gradient(rgba(46,42,38,0.035) 1px, transparent 1px);
+    background-size:3px 3px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  h1,h2{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    margin:0;
+  }
+
+  .screen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 20px;
+    position:relative;
+    z-index:1;
+  }
+
+  .step{ display:none; }
+  .step.active{ display:flex; }
+
+  .seal{
+    width:64px; height:64px;
+    margin:0 auto 18px;
+    border-radius:50%;
+    background:var(--maroon);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 3px 0 rgba(0,0,0,0.08);
+  }
+  .seal svg{ width:28px; height:28px; }
+
+  .contract{
+    max-width:440px;
+    width:100%;
+    background:var(--paper-soft);
+    border:1px solid rgba(46,42,38,0.12);
+    border-radius:6px;
+    padding:38px 34px 32px;
+    text-align:center;
+    box-shadow:0 18px 40px rgba(46,42,38,0.10);
+    position:relative;
+  }
+  .contract::before{
+    content:"";
+    position:absolute; left:0; right:0; top:14px;
+    height:1px;
+    background:repeating-linear-gradient(90deg, rgba(46,42,38,0.15) 0 6px, transparent 6px 12px);
+  }
+  .contract h1{ font-size:1.5rem; margin-bottom:6px; }
+  .contract .sub{ font-size:0.95rem; color:var(--ink-soft); margin-bottom:26px; }
+
+  .terms{ text-align:left; display:flex; flex-direction:column; gap:14px; margin-bottom:26px; }
+  .term{
+    display:flex; align-items:flex-start; gap:12px;
+    padding:12px 14px; background:var(--paper);
+    border:1px solid rgba(46,42,38,0.10); border-radius:5px;
+    cursor:pointer; transition:border-color 0.2s ease, background 0.2s ease;
+  }
+  .term:hover{ border-color:var(--rose); }
+  .term.checked{ border-color:var(--maroon); background:#f4e9e9; }
+  .term input{
+    appearance:none; -webkit-appearance:none;
+    width:18px; height:18px; min-width:18px; margin-top:2px;
+    border:1.5px solid var(--ink-soft); border-radius:3px; position:relative; cursor:pointer;
+  }
+  .term input:checked{ background:var(--maroon); border-color:var(--maroon); }
+  .term input:checked::after{
+    content:""; position:absolute; left:5px; top:1px; width:5px; height:9px;
+    border:solid white; border-width:0 2px 2px 0; transform:rotate(40deg);
+  }
+  .term span{ font-size:0.92rem; }
+
+  #unlock{
+    font-family:'Lora',serif; font-size:0.98rem;
+    background:var(--ink-soft); color:var(--paper);
+    border:none; padding:13px 26px; border-radius:5px;
+    cursor:not-allowed; opacity:0.5; width:100%;
+    transition:background 0.25s ease, opacity 0.25s ease, transform 0.15s ease;
+  }
+  #unlock.ready{ background:var(--maroon); opacity:1; cursor:pointer; }
+  #unlock.ready:hover{ transform:translateY(-1px); }
+  .fine-print{ margin-top:16px; font-size:0.78rem; color:var(--ink-soft); font-style:italic; }
+
+  #landing{ flex-direction:column; text-align:center; gap:22px; }
+
+  .landing-prompt{
+    font-family:'Fraunces',serif;
+    font-size:1.3rem;
+    color:var(--ink);
+  }
+
+  .turtle-click{
+    background:none; border:none; cursor:pointer;
+    padding:0; line-height:0;
+    transition:transform 0.2s ease;
+  }
+  .turtle-click:hover{ transform:scale(1.06) rotate(-3deg); }
+  .turtle-click:active{ transform:scale(0.97); }
+
+  .sticker{
+    width:160px; height:160px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:5.5rem;
+    background:
+      repeating-linear-gradient(45deg, rgba(46,42,38,0.05) 0 2px, transparent 2px 10px),
+      #ffffff;
+    border-radius:16px;
+    box-shadow:0 10px 24px rgba(46,42,38,0.14);
+    border:1px solid rgba(46,42,38,0.08);
+    overflow:hidden;
+  }
+  .sticker img{
+    width:88%;
+    height:88%;
+    object-fit:contain;
+  }
+
+  .squiggle-arrow{
+    width:36px; height:44px;
+    color:#c23b3b;
+  }
+
+  .landing-hint{
+    font-family:'Fraunces',serif;
+    font-size:1.15rem;
+    max-width:360px;
+    color:var(--ink);
+  }
+
+  #story{ flex-direction:column; }
+
+  .stage{
+    display:flex;
+    align-items:flex-start;
+    max-width:660px;
+    width:100%;
+  }
+
+  .stage .sticker{
+    flex-shrink:0;
+    z-index:2;
+    margin-top:0;
+    animation:popIn 0.75s ease;
+
+  }
+
+  @keyframes popIn{
+    from{ opacity:0; transform:translateY(10px) scale(0.9); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .card{
+    flex:1;
+    margin-left:-10px;      
+    border-radius:18px 18px 18px 18px;
+    overflow:hidden;
+    box-shadow:18px 18px 40px rgba(46,42,38,0.18);
+    animation:cardIn 0.75s ease;
+  }
+
+  @keyframes cardIn{
+    from{ opacity:0; transform:translateX(12px); }
+    to{ opacity:1; transform:translateX(0); }
+  }
+
+  .card-header{
+    background:var(--maroon-dark);
+    color:var(--paper);
+    padding:18px 26px 14px;
+  }
+  .card-header h2{ font-size:1.4rem; }
+
+  .card-body{
+    background:var(--maroon);
+    color:#f6ecf6;
+    padding:22px 26px 18px;
+    font-size:1rem;
+    user-select:none;
+  }
+  .card-body p{ margin:0 0 12px; text-indent:2em; }
+  .card-body p:last-child{ margin-bottom:0; }
+
+  .mini-note{
+    font-size:0.82rem;
+    font-style:italic;
+    opacity:0.75;
+    text-indent:0 !important;
+  }
+  .mini-note a{
+    color:inherit;
+    text-decoration:underline;
+    text-decoration-color:rgba(255,255,255,0.5);
+    cursor:pointer;
+  }
+  .mini-note a:hover{ text-decoration-color:currentColor; }
+
+  .gift-video-wrap{
+    position:relative;
+    margin:16px 0;
+    border-radius:10px;
+    overflow:hidden;
+    background:#000;
+  }
+  .gift-video-wrap iframe{
+    width:100%;
+    aspect-ratio:16/9;
+    display:block;
+    border:none;
+    filter:blur(0);
+    transition:filter 0.5s ease;
+  }
+  .gift-video-wrap.locked iframe{
+    filter:blur(14px);
+    pointer-events:none;
+  }
+  .gift-lock-overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,0.32);
+    transition:opacity 0.4s ease;
+  }
+  .gift-video-wrap:not(.locked) .gift-lock-overlay{
+    opacity:0;
+    pointer-events:none;
+  }
+  .gift-lock-overlay svg{ width:46px; height:46px; }
+
+  @keyframes unlockGlow{
+    0%,100%{ box-shadow:0 10px 24px rgba(46,42,38,0.14); }
+    50%{ box-shadow:0 0 0 10px rgba(130,45,163,0.30), 0 10px 24px rgba(46,42,38,0.14); }
+  }
+  .sticker.unlock-hint{
+    animation:unlockGlow 1.6s ease-in-out infinite;
+    cursor:pointer;
+  }
+
+  .letter-gallery{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:16px 0;
+  }
+  .letter-thumb{
+    position:relative;
+    border-radius:8px;
+    overflow:hidden;
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,0.25);
+    background:#000;
+  }
+  .letter-thumb img{
+    width:100%;
+    height:130px;
+    object-fit:cover;
+    display:block;
+    transition:transform 0.3s ease, opacity 0.3s ease;
+  }
+  .letter-thumb:hover img{
+    transform:scale(1.05);
+    opacity:0.85;
+  }
+  .letter-thumb .page-tag{
+    position:absolute;
+    bottom:6px;
+    right:8px;
+    font-family:'Caveat',cursive;
+    font-size:1rem;
+    color:#fff;
+    background:rgba(0,0,0,0.45);
+    padding:1px 8px;
+    border-radius:10px;
+  }
+
+  .lightbox{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(20,10,24,0.92);
+    z-index:50;
+    align-items:center;
+    justify-content:center;
+    padding:30px;
+  }
+  .lightbox.open{ display:flex; }
+  .lightbox img{
+    max-width:100%;
+    max-height:85vh;
+    border-radius:6px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.5);
+  }
+  .lightbox-close{
+    position:absolute;
+    top:18px; right:24px;
+    background:none; border:none;
+    color:#fff; font-size:2rem;
+    cursor:pointer;
+    line-height:1;
+  }
+  .lightbox-nav{
+    position:absolute;
+    top:50%; transform:translateY(-50%);
+    background:rgba(255,255,255,0.15);
+    border:none; color:#fff;
+    font-size:1.6rem;
+    width:48px; height:48px;
+    border-radius:50%;
+    cursor:pointer;
+    transition:background 0.2s ease;
+  }
+  .lightbox-nav:hover{ background:rgba(255,255,255,0.3); }
+  .lightbox-prev{ left:16px; }
+  .lightbox-next{ right:16px; }
+  .lightbox-count{
+    position:absolute;
+    bottom:18px; left:50%; transform:translateX(-50%);
+    color:#fff; font-family:'Caveat',cursive; font-size:1.2rem;
+    opacity:0.8;
+  }
+
+  @media(max-width:600px){
+    .letter-thumb img{ height:100px; }
+    .lightbox-nav{ width:40px; height:40px; font-size:1.3rem; }
+  }
+
+  .card-footer{
+    background:var(--maroon);
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:10px;
+    padding:0 22px 18px;
+  }
+
+  .card-footer button{
+    font-family:'Lora',serif;
+    font-size:0.85rem;
+    border:none;
+    border-radius:20px;
+    padding:7px 16px;
+    cursor:pointer;
+    transition:opacity 0.2s ease, transform 0.15s ease;
+  }
+  .card-footer button:disabled{ opacity:0.35; cursor:default; }
+  .card-footer button#storyBack{
+    background:var(--paper-soft);
+    color:var(--ink);
+  }
+  .card-footer button#storyNext{
+    background:var(--paper);
+    color:var(--maroon-dark);
+    font-weight:600;
+  }
+  .card-footer button:hover:not(:disabled){ transform:translateY(-1px); }
+
+  .card-footer .count{
+    font-family:'Caveat',cursive;
+    font-size:1rem;
+    color:var(--paper);
+    opacity:0.8;
+  }
+
+  @media(max-width:600px){
+    .stage{ flex-direction:column; align-items:center; }
+    .stage .sticker{ margin-bottom:-20px; }
+    .card{ margin-left:0; width:100%; border-radius:18px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="gate" class="screen step active">
+  <div class="contract">
+    <div class="seal">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7.5-4.6-10-9.2C0.2 8.4 2 5 5.4 5c1.9 0 3.3 1 4.1 2.3C10.3 6 11.7 5 13.6 5 17 5 18.8 8.4 17 11.8 15.5 16.4 8 21 8 21" stroke="#f7f1e6" stroke-width="1.4" fill="none"/></svg>
+    </div>
+    <h1>Small Agreement</h1>
+    <p class="sub">before mo 'to buksan, pwede ba tayong mag-agree muna dito no rush naman.</p>
+
+    <div class="terms">
+      <label class="term">
+        <input type="checkbox" data-t>
+        <span>Hindi ako busy ngayon — I have time for this.</span>
+      </label>
+      <label class="term">
+        <input type="checkbox" data-t>
+        <span>Babasahin ko 'to sa sarili kong oras, walang nagppressure saakin.</span>
+      </label>
+      <label class="term">
+        <input type="checkbox" data-t>
+        <span>Pwede kong i-stop anytime — babalikan ko na lang kapag ready na ako.</span>
+      </label>
+    </div>
+
+    <button id="unlock" disabled>Okay, agree ako sa lahat</button>
+    <p class="fine-print">*walang expiration 'to. Kahit mamaya mo 'to buksan, bukas, next week, next month, next year okay lang talaga.</p>
+  </div>
+</div>
+<div id="landing" class="screen step">
+  <p class="landing-prompt">i-click ako para ipakita ang sulat</p>
+
+  <button class="turtle-click" id="turtleBtn" aria-label="Click to reveal the letter">
+    <span class="sticker"><img src="images/turtle-happy.png" alt=""></span>
+  </button>
+
+  <svg class="squiggle-arrow" viewBox="0 0 36 44" fill="none">
+    <path d="M18 40 C 10 26, 26 18, 18 4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    <path d="M11 8 L18 3 L21 11" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
+  <p class="landing-hint">kapag na-click mo ako, doon lalabas lahat ng gusto kong sabihin.</p>
+</div>
+<div id="story" class="screen step">
+  <div class="stage">
+    <span class="sticker" id="storyTurtle"><img src="images/turtle-happy.png" alt=""></span>
+    <div class="card">
+      <div class="card-header">
+        <h2 id="storyTitle">Bago Tayo Magsimula</h2>
+      </div>
+      <div class="card-body" id="storyBody">
+      </div>
+      <div class="card-footer">
+        <button id="storyBack">← Back</button>
+        <span class="count"><span id="storyCur">1</span>/<span id="storyTotal"></span></span>
+        <button id="storyNext">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous page">←</button>
+  <img id="lightboxImg" src="" alt="Letter page">
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next page">→</button>
+  <span class="lightbox-count" id="lightboxCount"></span>
+</div>
+
+<script>
+  const checks = document.querySelectorAll('.term input');
+  const unlockBtn = document.getElementById('unlock');
+  const gateStep = document.getElementById('gate');
+  const landingStep = document.getElementById('landing');
+  const storyStep = document.getElementById('story');
+
+  checks.forEach(c => {
+    c.addEventListener('change', () => {
+      c.closest('.term').classList.toggle('checked', c.checked);
+      const allChecked = [...checks].every(x => x.checked);
+      unlockBtn.disabled = !allChecked;
+      unlockBtn.classList.toggle('ready', allChecked);
+    });
+  });
+
+  unlockBtn.addEventListener('click', () => {
+    if (unlockBtn.disabled) return;
+    gateStep.classList.remove('active');
+    landingStep.classList.add('active');
+  });
+  document.getElementById('turtleBtn').addEventListener('click', () => {
+    landingStep.classList.remove('active');
+    storyStep.classList.add('active');
+    renderPage(0);
+  });
+  const pages = [
+    {
+      mood: 'images/turtle-happy.png',
+      title: 'Before We Start',
+      body: `
+        <p style="text-align: justify;">Bago magstart sa mismong letters, sorry biglaan ito. I'm also sorry if the timing is not right or kung huli na masyado, but I'd rather say the things I wanted to say than leave them unsaid. I know this might be overwhelming for you, but please stick with me.</p>
+        <p style="text-align: justify;">Baka unmanly ito sabihin pero wala na akong pake, I really miss you Yanie. I really miss you. Miss ko yung small updates, miss kong makausap ka, miss na kitang makalaro, miss ko yung mga yaps mo, miss ko na yung mga rants mo, miss ko na yung mga stickers mo, miss ko yung mga overreactions mo, miss ko yung mga tampo mo, miss ko na yung cuteness ng mga typing mo, miss ko na yung kakulitan mo, namimiss na kitang asarin. Marami pa akong mga bagay na namimiss sayo, pero baka magmukhang weirdo na ako kasi alam kong wala naman akong karapatan since I agreed na friends muna. Pero mahirap talaga iignore yung feeling na parang nawawala ka na, kasi naging parte ka na ng daily routine ko.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-upset.png',
+      title: 'Ikaw ang Dahilan',
+      body: `
+        <p style="text-align: justify;">You came into my life nung hindi ko inaasahan, at dahil sayo, mas naging magaan ang buhay ko. Ikaw na ang naging dahilan kung bakit gustong-gusto kong gumising araw-araw, kasi alam kong may makakausap akong nagpapasaya sa akin. You're the person na iniisip ko before ako matulog, and you're also the person na hinihintay kong makausap pagkagising ko. Hindi ko man mahanap yung eksaktong words para maiexpress ko lahat ng bagay na nararamdaman ko, but all I know is, I just miss having you around.</p>
+        <p style="text-align: justify;">Medyo nabigla rin ako kasi hindi na tayo masyadong nag-uusap, but don't get me wrong hindi kita sinisisi sa pagiging busy mo, and I'm also not angry, kasi alam kong how much you value your education, katulad ng sinabi mo sa akin. But I still can't help myself from overthinking things nitong nakaraang buwan, lalo na sa mga times na naisip kong baka napressure kita masyado, and sa mga bagay na nagawa ko na nakasakit ng feelings mo.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-cold.png',
+      title: 'Mga Kasalanan Ko',
+      body: `
+        <p style="text-align: justify;">1. Jun 05, 2026 - I'm really sorry na hindi ko man naconsider feelings nung araw nayun. I was too blinded to think na it's okay lang to send it, tuwing pinapanood ko yung video na yun ng pinsan ko, parang nakakatawa siya saakin at parang ang cute lang ng way nangpagkasabi niya. kaya nung nasend ko sayo, akala ko masasaya ka lang o at least matatawa ka lang dun, hindi ko man naisip na baka masaktan ka sa sinabi niya. Ang tanga ko talaga kasi hindi ko naconsider na baka iba yung tama niyan sayo kesa kung gagawin yan saakin. and at that time wala na akong maisip na topic para masimulan kang kausapin pero gusto ko talaga kausapin ka nun. Alam kong birthday nga ng lola ko, pero I just really want you feel like you apart with the celebration. kaya yung time nayun I really thought na okay lang talaga sayo yung video na yun na something pwede nating pagtawanan, hindi ko talaga intensyon masaktan ka. Naging okay lang sa isip ko yun kasi gusto ko  lang talaga ng paraan para makausap ka, pero mali yung paraan na pinili ko.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-cold.png',
+      title: 'Mga Kasalanan Ko',
+      body: `
+        <p style="text-align: justify;">Ngayon na naiisip ko na ulit, sana nagisip muna ako ng ibang paraan na sana hinanap ko nalang yung tamang topic na hindi ka masasaktan yung feelings mo. But that's what happened, and all I can say is I'm truly sorry, kasi sa pag-iisip kong makasama ka sa celebration na yun, I ended up hurting you instead. Nung hindi ka na nag-message ng ilang araw, akala ko lang busy ka o may kailangan ka lang gawin, hindi ko inisip na dahil pala sa video na yun. Nung sinabi saakin ni bea saakin kung bakit ka nag-iiwas, doon ko lang na-realize kung gaano pala kalalim yung tinamaan mo. And I felt really bad, kasi hindi ko dapat pinalampas yun ng ganon nalang, dapat inisip ko muna kung paano mo tatanggapin bago ko pa i-send. I'm sorry kasi hinayaan ko lang yung kasalanan na ginawa ko, and I really regret na hindi ko man na-explain ng maayos yung thought process ko noon, hindi ko man tiningnan ng maayos yung mararamdaman mo noon, hindi ko man inisip kung gaano kalalim yung tatamaan sayo bago pa man ako gumawa ng desisyon na yun.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-cold.png',
+      title: 'Mga Kasalanan Ko',
+      body: `
+        <p style="text-align: justify;">Sana noon pa, naging mas maingat ako sa mga bagay na sinasabi ko o ipinapadala ko, lalo na pagdating sayo, kasi alam kong hindi lahat ng bagay na cute o okay lang para sa akin ay okay lang din para sayo. Pero I just want you to know na never ka naging panget sa akin, kahit kailan man, kahit walang makeup, kahit tingin mo panget man yung gupit mo, kahit sabihin mo pa na sobrang panget mo, hinding-hindi ako maniniwala sayo. Kasi para sa akin, ikaw ang pinakamagandang tao na nakilala ko. Kahit sabihin mong marami kang insecurities o imperfections, for me, those imperfections make you unique and perfect to me, and that's the very reason why I like you. kasi hindi ko lang naman gustong-gusto yung magandang bahagi mo, kundi pati na rin yung mga parte na tingin mong kulang o hindi perfect. Sa akin, kumpleto ka na, And that's the reason why never kang naging panget sa akin. I know sorry is not enough para sa lahat ng pinagdaanan mo dahil dun, pero gusto ko lang malaman mong hindi ko sinasadyang saktan ka.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-cold.png',
+      title: 'Mga Kasalanan Ko',
+      body: `
+        <p style="text-align: justify;">2. I know na every time na may nagawa akong mali, lagi akong gumagawa ng paraan para patawarin mo ako. Pero the truth is, bago ko pa nagawa yung kasalanan na yun sayo, I've been planning to gift you something to serve as a congratulations for you. But dahil sa nangyari, wala rin akong time o lugar para matapos yung gift (di pa tapos pagpintura), kaya I'm sorry kung tumagal ito ng sobra.</p>
+        <p style="text-align: justify;">Dahil overthinker talaga ako, naisip ko na baka sabihin mong parang binalewala ko yung ginawa ko sayo, at parang pinilit ko ring kalimutan mo na lang ito kasi biglaan akong nagvietnam nun. Naging kampante rin ako kasi akala ko mabibigay ko pa rin sayo yung gift. Kaya I'm really sorry kung nablindside ko na naman yung feelings mo noon, kasi common na sa akin na gumawa ng paraan just to give you a proper apology, so I'm really sorry talaga kung ganun nga yung tingin mo sa akin. Hindi ko naman talaga intensyon na magmukhang wala akong pake sa nangyari, lalo na after knowing na nasaktan kita nung araw na yun. I'm really sorry talaga.</p>
+        <p class="mini-note">*If you're curious about the gift, <a onclick="renderPage(10); return false;">nasa page 11</a>.</p>
+        `
+    },
+    {
+      mood: 'images/turtle-cold.png',
+      title: 'Mga Kasalanan Ko',
+      body: `
+        <p style="text-align: justify;">3. July 4, 2026 - I'm sorry kung nafeel mong pinilit o napressure kita para lang sabihin mong okay ka lang. The truth is, that time, I was struggling with my own feelings kasi naalala ko na sinabi mo sa akin dati na tuwing umiiyak ka o may problema ka, si rik yung laging nandiyan for you. Wala namang mali dun, kasi I'm glad na may taong ganon for you. But personally, that's when I realized na medyo nainggit pala ako, not because there's anything wrong with rik or with you, kundi because of my own insecurity, gusto ko rin kasing maging yung taong agad mong nararamdamang makakausap tuwing may problema ka.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-cold.png',
+      title: 'Mga Kasalanan Ko',
+      body: `
+        <p style="text-align: justify;">At first, akala ko ang dahilan lang kung bakit sobra akong nag-aalala at gustong malaman kung okay ka ba talaga ay dahil sa pagmamalasakit ko sayo. But the more I thought about it, narealize ko na part na rin pala nun yung sarili kong gusto na mafeel na I matter din sayo sa ganung paraan. Kaya somehow, I got this urge na gawin din yung ginagawa niya, hoping na baka mas maging close din tayo ng ganun. Pero yung paraan ko, mali, kasi instead of waiting for you to open up sa sarili mong pace, I pushed to be fast, and that's where I went wrong. I just really want to be more closer to you and to know you better, kasi I want you to feel na hindi ka nagiisa, and I want to be one of the people na tinitingnan mong safe space mo rin, not because of competition or gustong ipahalata, but because I genuinely care about you. Pero sa sobrang gusto ko agad maabot yun, I forgot na being close is something na hindi dapat pinipilit, but something that should be allowed to happen naturally, at its own pace. I'm really sorry because I let my own emotions and insecurities get the better of me instead of thinking things through, kaya I'm really am so sorry talaga.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-cold.png',
+      title: 'Mga Kasalanan Ko',
+      body: `
+        <p style="text-align: justify;">4. I'm really sorry kung na-feel mong napressure kita masyado. I know na hindi ko dapat pinilit yung mga bagay na dapat sana ay dinaan sa tamang oras at pace mo. I'm sorry kung instead of feeling na may taong genuinely nag-aalala sayo, ang na-feel mo pa ay parang pressured ka lang. I know na minsan, kasi gusto ko lang talagang malaman kung okay ka, I didn't consider na baka yun mismong pag-iinsist ko ang nagiging dagdag na bigat sayo, instead of being a comfort. Sana noon pa, natutunan ko na genuine care doesn't always mean asking or insisting, but sometimes, it just means giving you space to feel what you need to feel, sa sarili mong time. I'm really sorry talaga kung sa dami ng beses kong ginawa yun, mas naging mabigat lang ako sayo. Alam kong hindi talaga sapat ang sorry ko sayo sa lahat ng naramdaman mo, pero sana malaman mo lang na hindi ko sinasadya masaktan ka, because the last thing that I want is to hurt you. I'm really am sorry talaga sa lahat.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-cold.png',
+      title: 'Mga Kasalanan Ko',
+      body: `
+        <p style="text-align: justify;">If there are more things na nasaktan kita, pero hindi ko pa alam or hindi mo pa nasabi sa akin, I am ready to explain and also learn from my mistakes. Handa akong makinig kahit gaano pa kahirap pakinggan, kasi mas gusto kong malaman ang mga pagkakamali ko para hindi ko na ulit masaktan yung mga taong minamahal ko. I want to do better, hindi lang para makuha yung forgiveness mo, kundi dahil deserve mo talagang tratuhin ka ng maayos, at yun yung dapat kong ginagawa mula noon hangang ngayon.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-flowers.png',
+      title: 'The Gift',
+      body: `
+        <div class="gift-video-wrap locked" id="giftVideoWrap">
+          <iframe
+            src="https://www.youtube.com/embed/0SFBqO0MfJc"
+            title="The Gift"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+          <div class="gift-lock-overlay" id="giftLockOverlay">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="5" y="11" width="14" height="10" rx="2" fill="white"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="white" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+        </div>
+        <p class="mini-note">🔒 click the turtle to unlock the video.</p>
+
+        <p class="mini-note"><a onclick="renderPage(5); return false;">← Back to Page 6</a></p>
+      `
+    },
+    {
+      mood: 'images/turtle-happy.png',
+      title: 'The Gift also',
+      body: `
+        <p style="text-align: justify;">May kasama rin pala yan na letter, but take note it's from a few months ago but my intensions are still the same.</p>
+        <p style="text-align: justify;">i-click mo lang yung picture para lumaki.</p>
+
+        <div class="letter-gallery" id="letterGallery">
+          <div class="letter-thumb" onclick="openLightbox(0)">
+            <img src="images/letter-1.jpg" alt="Letter page 1">
+            <span class="page-tag">1</span>
+          </div>
+          <div class="letter-thumb" onclick="openLightbox(1)">
+            <img src="images/letter-2.jpg" alt="Letter page 2">
+            <span class="page-tag">2</span>
+          </div>
+          <div class="letter-thumb" onclick="openLightbox(2)">
+            <img src="images/letter-3.jpg" alt="Letter page 3">
+            <span class="page-tag">3</span>
+          </div>
+          <div class="letter-thumb" onclick="openLightbox(3)">
+            <img src="images/letter-4.jpg" alt="Letter page 4">
+            <span class="page-tag">4</span>
+          </div>
+        </div>
+        <p class="mini-note">If panget masyado sulat ko/Kung mahirap basahin sa picture, <a href="https://docs.google.com/document/d/1LTry6a9lUFnCOw6qTin8JyNKZF-WEDR5-4uJ-QOd3SQ/edit?usp=sharing" target="_blank" rel="noopener">buksan na lang dito yung typed version</a> (bagong tab).</p>
+      `
+    },
+    {
+      mood: 'images/turtle-heart.png',
+      title: 'You deserve the world',
+      body: `
+        <p style="text-align: justify;">It may seem like na I'm doing way too much for you, lalo na magkaibigan lang naman tayo. Pero for me, you really deserve all of my efforts. Hindi ko naman ito ginagawa dahil sa expectation na gusto kong may makuha in return, ginagawa ko ito kasi ganun talaga ang klase ng pagmamahal ko sayo, kahit anong label pa man meron sa relasyon natin ngayon. Alam kong baka sabihin mong sobra na, pero para sa akin, hindi kailanman magiging sobra ang pagmamahal kung ikaw yung tinutukoy.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-upset.png',
+      title: 'My Intentions',
+      body: `
+        <p style="text-align: justify;">Like I said, I've already come this far for someone special like you, and my intentions for you remain the same, kung sakaling bigyan mo man ako ng chance na patunayan ito, o kahit hindi. mananatili pa rin akong ganito. The only thing that would make me stop pursuing you is if you genuinely want me to stop. Kasi kahit na I care about you and want to be there for you, the last thing that I want is making you uncomfortable or pressuring you into making a decision, lalo na kung hindi mo pa alam kung ano talaga yung gusto mo, or kung kailan ka pa handang magdesisyon. Pero if that ever happens, na ma-feel mong hindi ka na komportable o nappressure ka, I will stop, walang tanong-tanong pa.</p>
+        <p style="text-align: justify;">I will always wait for you, kahit ilang days, months, or years pa man, whether it's making a decision, giving me an answer, or something else. Kasi mas gusto kong malaman ang totoo kahit masakit man, kesa mabuhay sa maling akala na baka may pag-asa pa, gayong wala naman pala. Kaya whatever your decision may be, either we continue to be close or you need space, I will accept it, kasi mas mahalaga sa akin na respetuhin ang totoong nararamdaman mo kesa sa sarili kong hangarin.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-nervous.png',
+      title: 'Bakit Hindi Ako Nag-reach Out',
+      body: `
+        <p style="text-align: justify;">The reason why hindi ako nag-rereach out, the truth is, natakot lang talaga akong mag-reach out sayo, kasi ayoko ng magsabi ng mga bagay na kalahati lang naisip, gusto ko munang maging sigurado sa mga sasabihin ko bago ako magmessage, para hindi ito maging half-witted lang. I also wanted to respect your own personal time, at ayoko ring maging isang burden sa mga studies mo, kasi alam kong priority mo talaga ito ngayon, at ayokong maging dahilan para ma-distract ka o mabawasan pa yung focus mo. So instead of suddenly reaching out to you without having anything clear to say, that's why I chose to wait and think things through first.</p>
+      `
+    },
+    {
+      mood: 'images/turtle-heart.png',
+      title: 'Thank You',
+      body: `
+        <p style="text-align: justify;">Genuinely grateful ako na binigyan mo ako ng chance hindi dahil naging maikli lang siya, but because it was real, and it mattered to me. I'll always carry the memories, the conversations, and the moments na pinagsamahan natin. Hindi ko titingnan ’to as just some small chapter to look back on, but as something that actually shaped a part of who I am today.</p>
+        <p style="text-align: justify;">I know things feel quiet and distant between us right now, and that's okay. Hindi ko naman kailangang malaman kung ano yung mangyayari next para maging thankful ako sa mga nangyari na. Whatever comes after this, I genuinely hope you do incredibly well sa studies mo, sa mga dreams mo, and wherever life takes you.</p>
+        <p style="text-align: justify;">Thank you for being part of my life. Hindi siya yung simpleng "thanks for the time" na thank you. I'm saying thank you because you're someone I'll always remember and always appreciate, regardless of what we eventually become to each other.</p>
+        <p style="text-align: justify;">You don't have to think about this too much or even respond to it. If ever dumating yung araw na kailangan mo ng someone na makikinig, susuporta sa'yo, or kahit someone na nandiyan lang, I hope you know where to find me. And if that day never comes, genuinely okay lang din. I don't need anything back from you for everything that happened between us to have meant something to me. For now, I just hope you know that I'll always genuinely wish the best for you, wherever life takes you.</p>
+        <p style="text-align: justify;">Lastly, thank you for staying with me until the end of this, for reading through everything, page by page, even if it wasn't easy. That alone already means more to me than you know.</p>
+        <p>With all my heart,</p>
+        <p>— Dwayne</p>
+        `
+    }
+  ];
+
+  let current = 0;
+  const storyTurtle = document.getElementById('storyTurtle');
+  const storyTitle = document.getElementById('storyTitle');
+  const storyBody = document.getElementById('storyBody');
+  const storyCur = document.getElementById('storyCur');
+  const storyTotal = document.getElementById('storyTotal');
+  const storyBack = document.getElementById('storyBack');
+  const storyNext = document.getElementById('storyNext');
+  storyTotal.textContent = pages.length;
+
+  function renderPage(index){
+    current = Math.max(0, Math.min(pages.length - 1, index));
+    const p = pages[current];
+
+    storyTurtle.innerHTML = `<img src="${p.mood}" alt="">`;
+
+    storyTitle.textContent = p.title;
+    storyBody.innerHTML = p.body;
+    storyCur.textContent = current + 1;
+
+    storyBack.disabled = current === 0;
+    storyNext.textContent = current === pages.length - 1 ? 'Done' : 'Next →';
+
+
+    storyTurtle.classList.toggle('unlock-hint', current === 10);
+  }
+
+
+  storyTurtle.addEventListener('click', () => {
+    if (current !== 10) return;
+    const wrap = document.getElementById('giftVideoWrap');
+    if (wrap) wrap.classList.remove('locked');
+    storyTurtle.classList.remove('unlock-hint');
+  });
+
+  storyBack.addEventListener('click', () => renderPage(current - 1));
+  storyNext.addEventListener('click', () => {
+    if (current === pages.length - 1) return;
+    renderPage(current + 1);
+  });
+
+  const letterImages = [
+    'images/letter-1.jpg',
+    'images/letter-2.jpg',
+    'images/letter-3.jpg',
+    'images/letter-4.jpg'
+  ];
+  let lightboxIndex = 0;
+
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCount = document.getElementById('lightboxCount');
+
+  function openLightbox(index){
+    lightboxIndex = index;
+    updateLightbox();
+    lightbox.classList.add('open');
+  }
+
+  function updateLightbox(){
+    lightboxImg.src = letterImages[lightboxIndex];
+    lightboxCount.textContent = `${lightboxIndex + 1} / ${letterImages.length}`;
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove('open');
+  }
+
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightboxPrev').addEventListener('click', () => {
+    lightboxIndex = (lightboxIndex - 1 + letterImages.length) % letterImages.length;
+    updateLightbox();
+  });
+  document.getElementById('lightboxNext').addEventListener('click', () => {
+    lightboxIndex = (lightboxIndex + 1) % letterImages.length;
+    updateLightbox();
+  });
+  // click the dark background (not the image itself) to close
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') document.getElementById('lightboxPrev').click();
+    if (e.key === 'ArrowRight') document.getElementById('lightboxNext').click();
+  });
+</script>
+
+</body>
+</html>
