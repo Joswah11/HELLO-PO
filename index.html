@@ -278,6 +278,80 @@
     cursor:pointer;
   }
 
+  /* ---------- HEART MAP (final screen) ---------- */
+  #heartmap{ flex-direction:column; gap:10px; }
+
+  .heartmap-title{
+    font-family:'Fraunces',serif;
+    font-size:1.5rem;
+    text-align:center;
+    color:var(--ink);
+  }
+  .heartmap-sub{
+    font-family:'Lora',serif;
+    font-size:0.92rem;
+    color:var(--ink-soft);
+    text-align:center;
+    margin:0 0 4px;
+    max-width:420px;
+  }
+
+  .heart-stage{
+    position:relative;
+    width:100%;
+    max-width:880px;
+    aspect-ratio:1.25 / 1;
+    margin:0 auto;
+  }
+
+  .heart-node{
+    position:absolute;
+    transform:translate(-50%,-50%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    background:none;
+    border:none;
+    padding:6px;
+    cursor:pointer;
+    transition:transform 0.25s ease;
+  }
+  .heart-node img{
+    width:92px;
+    height:92px;
+    object-fit:contain;
+    transition:transform 0.25s ease, filter 0.25s ease;
+    filter:drop-shadow(0 4px 8px rgba(46,42,38,0.18));
+  }
+  .heart-node .node-label{
+    font-family:'Fraunces',serif;
+    font-size:0.85rem;
+    color:var(--ink-soft);
+    text-align:center;
+    max-width:130px;
+    line-height:1.25;
+    transition:color 0.25s ease, font-weight 0.25s ease;
+  }
+
+  /* hover highlight */
+  .heart-node:hover{ transform:translate(-50%,-50%) scale(1.12); z-index:3; }
+  .heart-node:hover img{
+    filter:drop-shadow(0 0 14px rgba(130,45,163,0.55)) drop-shadow(0 4px 8px rgba(46,42,38,0.18));
+  }
+  .heart-node:hover .node-label{
+    color:var(--maroon);
+    font-weight:600;
+  }
+  .heart-node:active{ transform:translate(-50%,-50%) scale(1.02); }
+
+  @media(max-width:700px){
+    .heart-stage{ aspect-ratio:0.85 / 1; max-width:100%; }
+    .heart-node img{ width:54px; height:54px; }
+    .heart-node .node-label{ font-size:0.65rem; max-width:84px; }
+    .heartmap-title{ font-size:1.2rem; }
+  }
+
   .letter-gallery{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -418,7 +492,7 @@
       <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7.5-4.6-10-9.2C0.2 8.4 2 5 5.4 5c1.9 0 3.3 1 4.1 2.3C10.3 6 11.7 5 13.6 5 17 5 18.8 8.4 17 11.8 15.5 16.4 8 21 8 21" stroke="#f7f1e6" stroke-width="1.4" fill="none"/></svg>
     </div>
     <h1>Small Agreement</h1>
-    <p class="sub">before mo 'to buksan, pwede ka ba mag-agree muna dito no rush naman.</p>
+    <p class="sub">before mo 'to buksan, pwede ba tayong mag-agree muna dito no rush naman.</p>
 
     <div class="terms">
       <label class="term">
@@ -431,34 +505,35 @@
       </label>
       <label class="term">
         <input type="checkbox" data-t>
-        <span>Pwede kong i-stop anytime — babalikan ko na lang kapag ready na ulit ako.</span>
+        <span>Pwede kong i-stop anytime — babalikan ko na lang kapag ready na ako.</span>
       </label>
     </div>
 
-    <button id="unlock" disabled>Oki, agree ako sa lahat</button>
-    <p class="fine-print">*walang expiration 'to, pero mahaba siya. kaya take your time kahit mamaya mo 'to buksan, bukas, next week, o next month.</p>
+    <button id="unlock" disabled>Okay, agree ako sa lahat</button>
+    <p class="fine-print">*walang expiration 'to. Kahit mamaya mo 'to buksan, bukas, next week, next month, next year okay lang talaga.</p>
   </div>
 </div>
 <div id="landing" class="screen step">
-  <p class="landing-prompt">i-click ako para ipakita ang sulat</p>
 
   <button class="turtle-click" id="turtleBtn" aria-label="Click to reveal the letter">
-    <span class="sticker"><img src="images/turtle-happy.png" alt=""></span>
+    <span class="sticker unlock-hint"><img src="images/turtle-happy.png" alt=""></span>
   </button>
 
   <svg class="squiggle-arrow" viewBox="0 0 36 44" fill="none">
     <path d="M18 40 C 10 26, 26 18, 18 4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
     <path d="M11 8 L18 3 L21 11" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 8 L8 10 L50 11" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 8 L18 3 L41 11" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 
-  <p class="landing-hint">kapag na-click mo ako, doon lalabas lahat ng gusto kong sabihin.</p>
+  <p class="landing-hint">click me!!!</p>
 </div>
 <div id="story" class="screen step">
   <div class="stage">
     <span class="sticker" id="storyTurtle"><img src="images/turtle-happy.png" alt=""></span>
     <div class="card">
       <div class="card-header">
-        <h2 id="storyTitle">Bago Tayo Magsimula</h2>
+        <h2 id="storyTitle">Before We Start</h2>
       </div>
       <div class="card-body" id="storyBody">
       </div>
@@ -469,6 +544,13 @@
       </div>
     </div>
   </div>
+</div>
+
+
+<div id="heartmap" class="screen step">
+  <p class="heartmap-title">Lahat ng gusto kong sabihin</p>
+  <p class="heartmap-sub">kung gusto mong balikan kahit alin dito, click mo lang sila.</p>
+  <div class="heart-stage" id="heartStage"></div>
 </div>
 
 
@@ -486,6 +568,7 @@
   const gateStep = document.getElementById('gate');
   const landingStep = document.getElementById('landing');
   const storyStep = document.getElementById('story');
+  const heartmapStep = document.getElementById('heartmap');
 
   checks.forEach(c => {
     c.addEventListener('change', () => {
@@ -512,7 +595,7 @@
       title: 'Before We Start',
       body: `
         <p style="text-align: justify;">Bago magstart sa mismong letters, sorry biglaan ito. I'm also sorry if the timing is not right or kung huli na masyado, but I'd rather say the things I wanted to say than leave them unsaid. I know this might be overwhelming for you, but please stick with me.</p>
-        <p style="text-align: justify;">Baka unmanly ito sabihin pero wala na akong pake, I really miss you Yanie. I really miss you. Miss ko yung small updates, miss kong makausap ka, miss na kitang makalaro, miss ko yung mga yaps mo, miss ko na yung mga rants mo, miss ko na yung mga stickers mo, miss ko yung mga overreactions mo, miss ko yung mga tampo mo, miss ko na yung cuteness ng mga typing mo, miss ko na yung kakulitan mo, namimiss na kitang asarin. Marami pa akong mga bagay na namimiss sayo, pero baka magmukhang weirdo na ako kasi alam kong wala naman akong karapatan since I agreed na friends muna. Pero mahirap talaga iignore yung feeling na parang nawawala ka na, kasi naging parte ka na ng daily routine ko.</p>
+        <p style="text-align: justify;">Baka unmanly ito sabihin, pero the thing is, I really miss you Yanie. I really miss you. Miss ko yung small updates, miss kong makausap ka, miss na kitang makalaro, miss ko yung mga yaps mo, miss ko na yung mga rants mo, miss ko na yung mga stickers mo, miss ko yung mga overreactions mo, miss ko yung mga tampo mo, miss ko na yung cuteness ng mga typing mo, miss ko na yung kakulitan mo, namimiss na kitang asarin. Marami pa akong mga bagay na namimiss sayo, pero baka magmukhang weirdo na ako kasi alam kong wala naman akong karapatan since I agreed na friends muna. Pero mahirap talaga iignore yung feeling na parang nawawala ka na, kasi naging parte ka na ng daily routine ko.</p>
       `
     },
     {
@@ -661,8 +744,8 @@
         <p style="text-align: justify;">Genuinely grateful ako na binigyan mo ako ng chance hindi dahil naging maikli lang siya, but because it was real, and it mattered to me. I'll always carry the memories, the conversations, and the moments na pinagsamahan natin. Hindi ko titingnan ’to as just some small chapter to look back on, but as something that actually shaped a part of who I am today.</p>
         <p style="text-align: justify;">I know things feel quiet and distant between us right now, and that's okay. Hindi ko naman kailangang malaman kung ano yung mangyayari next para maging thankful ako sa mga nangyari na. Whatever comes after this, I genuinely hope you do incredibly well sa studies mo, sa mga dreams mo, and wherever life takes you.</p>
         <p style="text-align: justify;">Thank you for being part of my life. Hindi siya yung simpleng "thanks for the time" na thank you. I'm saying thank you because you're someone I'll always remember and always appreciate, regardless of what we eventually become to each other.</p>
-        <p style="text-align: justify;">You don't have to think about this too much or even respond to it. If ever dumating yung araw na kailangan mo ng someone na makikinig, susuporta sa'yo, or kahit someone na nandiyan lang, I hope you know where to find me. And if that day never comes, genuinely okay lang din. I don't need anything back from you for everything that happened between us to have meant something to me. For now, I just hope you know that I'll always genuinely wish the best for you, wherever life takes you.</p>
-        <p style="text-align: justify;">Lastly, thank you for staying with me until the end of this, for reading through everything, page by page, even if it wasn't easy. That alone already means more to me than you know.</p>
+        <p style="text-align: justify;">You don't have to think about this too much or even respond to it. If ever dumating yung araw na kailangan mo ng someone na makikinig, susuporta sayo, or kahit someone na nandiyan lang, I hope you know where to find me. And if meron ka pang space in your time, kahit kaunting oras lang, I’d gladly take it. I’d be happy to hear from you, even if it’s just for a short conversation. No pressure, though. I’ll always understand that you have your own life, priorities, and etc. And if that day never comes, genuinely okay lang din. I don't need anything back from you for everything that happened between us to have meant something to me. For now, I just hope you know that I'll always genuinely wish the best for you, wherever life takes you.</p>
+        <p style="text-align: justify;">Lastly, thank you for staying with me until the end of this, for reading through everything, lalo na kung sakaling hindi naging madali sayo. THANK YOU TALAGA. KAYA SA MULI, STUDYWELL, RESTWELL, SLEEPWELL, EATWELL, AND WELLWELL PO!!!</p>
         <p>With all my heart,</p>
         <p>— Dwayne</p>
         `
@@ -706,8 +789,42 @@
 
   storyBack.addEventListener('click', () => renderPage(current - 1));
   storyNext.addEventListener('click', () => {
-    if (current === pages.length - 1) return;
+    if (current === pages.length - 1){
+      storyStep.classList.remove('active');
+      heartmapStep.classList.add('active');
+      return;
+    }
     renderPage(current + 1);
+  });
+  const heartNodes = [
+    { page: 0,  x: 84.0, y: 48.8, label: 'Before We Start' },
+    { page: 1,  x: 63.4, y: 70.3, label: 'Ikaw ang Dahilan' },
+    { page: 2,  x: 47.9, y: 84.2, label: 'Mga Kasalanan Ko' },
+    { page: 10, x: 27.9, y: 62.0, label: 'The Gift' },
+    { page: 11, x: 10.7, y: 37.6, label: 'The Gift also' },
+    { page: 12, x: 22.3, y: 11.9, label: 'You deserve the world' },
+    { page: 13, x: 47.1, y: 20.4, label: 'My Intentions' },
+    { page: 14, x: 61.3, y: 12.1, label: 'Bakit Hindi Ako Nag-reach Out' },
+    { page: 15, x: 86.5, y: 19.8, label: 'Thank You' }
+  ];
+
+  const heartStage = document.getElementById('heartStage');
+
+  heartNodes.forEach(node => {
+    const btn = document.createElement('button');
+    btn.className = 'heart-node';
+    btn.style.left = node.x + '%';
+    btn.style.top  = node.y + '%';
+    btn.innerHTML = `
+      <img src="${pages[node.page].mood}" alt="">
+      <span class="node-label">${node.label}</span>
+    `;
+    btn.addEventListener('click', () => {
+      heartmapStep.classList.remove('active');
+      storyStep.classList.add('active');
+      renderPage(node.page);
+    });
+    heartStage.appendChild(btn);
   });
 
   const letterImages = [
